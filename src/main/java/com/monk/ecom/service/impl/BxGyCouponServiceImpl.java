@@ -11,7 +11,7 @@ import com.monk.ecom.service.CouponService;
 import com.monk.ecom.util.couponUtility;
 
 @Service
-public class CartWiseCouponServiceImpl implements CouponService {
+public class BxGyCouponServiceImpl implements CouponService {
 
     @Autowired
     private CouponRepository couponRepo;
@@ -23,9 +23,12 @@ public class CartWiseCouponServiceImpl implements CouponService {
     public Coupon createCoupon(CreationCriteria couponCreationCriteria) {
         ProductDetails couponDetails = couponCreationCriteria.getDetails();
         float discount = couponDetails.getDiscount();
-        String description = utility.getCartWiseDiscountDescription(couponDetails);
+        String description = utility.getBxGyDiscountDescription(couponDetails);
         Coupon couponResult = new Coupon(couponCreationCriteria.getTypeOfCoupon(), discount, description,
-                null, null, null, null);
+                null,
+                null,
+                null,
+                null);
         couponRepo.save(couponResult);
         return couponResult;
     }

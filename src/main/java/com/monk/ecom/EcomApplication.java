@@ -1,4 +1,4 @@
-package com.monk.ecom.application;
+package com.monk.ecom;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
