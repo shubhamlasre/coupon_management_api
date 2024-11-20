@@ -1,5 +1,6 @@
 package com.monk.ecom.service.impl;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -15,11 +16,14 @@ import com.monk.ecom.domain.CouponForCart;
 import com.monk.ecom.domain.Product;
 import com.monk.ecom.domain.ProductCouponMap;
 import com.monk.ecom.domain.result.CartResult;
+import com.monk.ecom.exception.ConditionNotMetException;
+import com.monk.ecom.exception.CouponNotFoundException;
 import com.monk.ecom.repository.BuyAndGetCouponRepository;
 import com.monk.ecom.repository.CouponForCartRepository;
 import com.monk.ecom.repository.CouponRepository;
 import com.monk.ecom.repository.ProductCouponMapRepository;
 import com.monk.ecom.repository.ProductRepository;
+import com.monk.ecom.service.ApplicableCouponService;
 import com.monk.ecom.service.ApplyCouponService;
 
 @Service
@@ -40,25 +44,38 @@ public class ApplyCouponServiceImpl implements ApplyCouponService {
     @Autowired
     private BuyAndGetCouponRepository buyAndGetCouponRepo;
 
+    @Autowired
+    private ApplicableCouponService applicableCouponService;
+
     @Override
-    public CartResult applyCouponOnCart(long couponId, CartDetails cartDetails) {
+    public CartResult applyCouponOnCart(long couponId, CartDetails cartDetails) throws ConditionNotMetException, CouponNotFoundException {
+        List<Coupon> applicableCoupons = applicableCouponService.fetchApplicableCoupon(cartDetails);
         Optional<Coupon> coupon = couponRepo.findById(couponId);
         CartResult cartResult = new CartResult();
         if (coupon.isPresent()) {
-            String couponType = coupon.get().getType();
+            Coupon appliedCoupon = coupon.get();
+            if (appliedCoupon.getApplicableTill().isAfter(LocalDate.now())) {
+                if (applicableCoupons.contains(appliedCoupon)) {
+                    String couponType = appliedCoupon.getType();
 
-            if (couponType.equalsIgnoreCase("cart-wise")) {
-                cartResult = getCartResultForCartWise(couponId, cartDetails);
-            } else if (couponType.equalsIgnoreCase("product-wise")) {
-                cartResult = getCartResultForProductWise(couponId, cartDetails);
-            } else if (couponType.equalsIgnoreCase("BxGy")) {
-                cartResult = getCartResultForBuyAndGet(couponId, cartDetails);
+                    if (couponType.equalsIgnoreCase("cart-wise")) {
+                        cartResult = getCartResultForCartWise(couponId, cartDetails);
+                    } else if (couponType.equalsIgnoreCase("product-wise")) {
+                        cartResult = getCartResultForProductWise(couponId, cartDetails);
+                    } else if (couponType.equalsIgnoreCase("BxGy")) {
+                        cartResult = getCartResultForBuyAndGet(couponId, cartDetails);
+                    }
+                } else {
+                    throw new ConditionNotMetException("Coupon with couponId: " + couponId + " is not applicable to this cart");
+                }
+            } else {
+                throw new ConditionNotMetException("Coupon with couponId: " + couponId + " is expired");
             }
         }
         return cartResult;
     }
 
-    private CartResult getCartResultForCartWise(long couponId, CartDetails cartDetails) {
+    private CartResult getCartResultForCartWise(long couponId, CartDetails cartDetails) throws ConditionNotMetException {
         CartResult cartResult = new CartResult();
         Cart finalCart = new Cart();
         List<Product> itemResult = new ArrayList<>();
@@ -86,7 +103,7 @@ public class ApplyCouponServiceImpl implements ApplyCouponService {
         return cartResult;
     }
 
-    private CartResult getCartResultForProductWise(long couponId, CartDetails cartDetails) {
+    private CartResult getCartResultForProductWise(long couponId, CartDetails cartDetails) throws ConditionNotMetException {
         CartResult cartResult = new CartResult();
         Cart finalCart = new Cart();
         List<Product> itemResult = new ArrayList<>();
@@ -113,10 +130,11 @@ public class ApplyCouponServiceImpl implements ApplyCouponService {
         finalPrice = totalPrice - finalDiscount;
         finalCart.setFinalPrice(finalPrice);
         cartResult.setUpdatedCart(finalCart);
+
         return cartResult;
     }
 
-    private CartResult getCartResultForBuyAndGet(long couponId, CartDetails cartDetails) {
+    private CartResult getCartResultForBuyAndGet(long couponId, CartDetails cartDetails) throws ConditionNotMetException {
         CartResult cartResult = new CartResult();
         Cart finalCart = new Cart();
         List<Product> itemResult = new ArrayList<>();
@@ -144,6 +162,7 @@ public class ApplyCouponServiceImpl implements ApplyCouponService {
         finalPrice = totalPrice - finalDiscount;
         finalCart.setFinalPrice(finalPrice);
         cartResult.setUpdatedCart(finalCart);
+
         return cartResult;
     }
 

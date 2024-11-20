@@ -1,5 +1,6 @@
 package com.monk.ecom.service.impl;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,7 @@ import com.monk.ecom.domain.Coupon;
 import com.monk.ecom.domain.CouponForCart;
 import com.monk.ecom.domain.Product;
 import com.monk.ecom.domain.ProductCouponMap;
+import com.monk.ecom.exception.CouponNotFoundException;
 import com.monk.ecom.repository.BuyAndGetCouponRepository;
 import com.monk.ecom.repository.CouponForCartRepository;
 import com.monk.ecom.repository.CouponRepository;
@@ -40,7 +42,7 @@ public class ApplicableCouponServiceImpl implements ApplicableCouponService {
     private BuyAndGetCouponRepository buyAndGetCouponRepo;
 
     @Override
-    public List<Coupon> fetchApplicableCoupon(CartDetails cartDetails) {
+    public List<Coupon> fetchApplicableCoupon(CartDetails cartDetails) throws CouponNotFoundException {
         List<Coupon> applicableCoupons = new ArrayList<>();
         List<Product> cartItems = cartDetails.getCart().getItems();
         List<Long> uniqueCouponIds = new ArrayList<>();
@@ -53,7 +55,7 @@ public class ApplicableCouponServiceImpl implements ApplicableCouponService {
             for (ProductCouponMap pcm : productCouponMaps) {
                 if (!uniqueCouponIds.contains(pcm.getCouponId())) {
                     Optional<Coupon> coupon = couponRepo.findById(pcm.getCouponId());
-                    if (coupon.isPresent()) {
+                    if (coupon.isPresent() && coupon.get().getApplicableTill().isAfter(LocalDate.now())) {
                         applicableCoupons.add(coupon.get());
                         uniqueCouponIds.add(coupon.get().getId());
                     }
@@ -66,12 +68,10 @@ public class ApplicableCouponServiceImpl implements ApplicableCouponService {
             for (BuyAndGetCouponMap bngCouponMap : buyAndGetCouponMaps) {
                 if (!uniqueCouponIds.contains(bngCouponMap.getCouponId())) {
                     Optional<Coupon> optCoupon = couponRepo.findById(bngCouponMap.getCouponId());
-                    if (optCoupon.isPresent()) {
+                    if (optCoupon.isPresent() && optCoupon.get().getApplicableTill().isAfter(LocalDate.now())) {
                         Coupon coupon = optCoupon.get();
                         applicableCoupons.add(coupon);
                         uniqueCouponIds.add(coupon.getId());
-                        String avialItemDetail = "" + bngCouponMap.getAvailProductId() + ":" + bngCouponMap.getAvailProductQuantity();
-                        bngCouponDetail.put(coupon.getId(), avialItemDetail);
                     }
                 }
             }
@@ -83,12 +83,14 @@ public class ApplicableCouponServiceImpl implements ApplicableCouponService {
         for (CouponForCart couponForCart : couponForCarts) {
             if (!uniqueCouponIds.contains(couponForCart.getCouponId())) {
                 Optional<Coupon> optCoupon = couponRepo.findById(couponForCart.getCouponId());
-                applicableCoupons.add(optCoupon.get());
-                uniqueCouponIds.add(optCoupon.get().getId());
+                if (optCoupon.get().getApplicableTill().isAfter(LocalDate.now())) {
+                    applicableCoupons.add(optCoupon.get());
+                    uniqueCouponIds.add(optCoupon.get().getId());
+                }
             }
 
         }
-        // removing Buy and Get coupon if cart doesn't contain the Freely avialable item
+        // removing Buy and Get coupon if cart doesn't contain the Freely available item
         for (long couponId : bngCouponDetail.keySet()) {
             String itemDetail = bngCouponDetail.get(couponId);
             String[] freeItem = itemDetail.split(":");
@@ -103,6 +105,9 @@ public class ApplicableCouponServiceImpl implements ApplicableCouponService {
                 Optional<Coupon> optCoupon = couponRepo.findById(couponId);
                 applicableCoupons.remove(optCoupon.get());
             }
+        }
+        if (applicableCoupons.isEmpty()) {
+            throw new CouponNotFoundException("No applicable Coupon Exist");
         }
         return applicableCoupons;
     }

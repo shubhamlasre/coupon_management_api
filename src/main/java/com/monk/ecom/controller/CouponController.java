@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.monk.ecom.domain.Coupon;
 import com.monk.ecom.domain.CreationCriteria;
 import com.monk.ecom.domain.result.CouponSearchResult;
+import com.monk.ecom.exception.ConditionNotMetException;
+import com.monk.ecom.exception.CouponNotFoundException;
+import com.monk.ecom.exception.InvalidInputException;
 import com.monk.ecom.service.RetrieveCouponService;
 import com.monk.ecom.service.UpdateCouponService;
 import com.monk.ecom.service.impl.BxGyCouponServiceImpl;
@@ -40,7 +43,7 @@ public class CouponController {
 
     // @RequestMapping(value = "/coupon", method = RequestMethod.POST)
     @PostMapping("/coupon")
-    public String createCoupon(@RequestBody CreationCriteria couponCriteria) {
+    public String createCoupon(@RequestBody CreationCriteria couponCriteria) throws InvalidInputException {
         String type = couponCriteria.getTypeOfCoupon();
         if (type.equalsIgnoreCase("cart-wise")) {
             cartWiseCouponService.createCoupon(couponCriteria);
@@ -48,6 +51,8 @@ public class CouponController {
             productWiseCouponService.createCoupon(couponCriteria);
         } else if (type.equalsIgnoreCase("BxGy")) {
             bxgyCouponService.createCoupon(couponCriteria);
+        } else {
+            throw new InvalidInputException("Coupon type " + type + " does not exist");
         }
         String message = type + " coupon created Successfully";
         return message;
@@ -55,26 +60,29 @@ public class CouponController {
 
     // @RequestMapping(value = "/coupon", method = RequestMethod.GET)
     @GetMapping("/coupon")
-    public CouponSearchResult fetchCoupon() {
+    public CouponSearchResult fetchCoupon() throws CouponNotFoundException, ConditionNotMetException {
         List<Coupon> coupons = retrieveCouponService.fetchAllCoupon();
+        if (coupons.isEmpty()) {
+            throw new CouponNotFoundException("No Coupons Exist");
+        }
         CouponSearchResult result = new CouponSearchResult(coupons);
         return result;
     }
 
     @GetMapping("/coupon/{id}")
-    public Coupon fetchCoupon(@PathVariable int id) {
+    public Coupon fetchCoupon(@PathVariable int id) throws CouponNotFoundException, ConditionNotMetException {
         Coupon coupon = retrieveCouponService.fetchCoupon(id);
         return coupon;
     }
 
     @PutMapping("coupon/{id}")
-    public String updateCoupon(@PathVariable long id, @RequestBody CreationCriteria couponCriteria) {
+    public String updateCoupon(@PathVariable long id, @RequestBody CreationCriteria couponCriteria) throws CouponNotFoundException {
         updateCouponService.updateCoupon(id, couponCriteria);
         return "Successfully updated Coupon with couponId: " + id;
     }
 
     @DeleteMapping("coupon/{id}")
-    public String deleteCoupon(@PathVariable long id) {
+    public String deleteCoupon(@PathVariable long id) throws CouponNotFoundException {
         updateCouponService.deleteCoupon(id);
         return "Successfully deleted Coupon with couponId: " + id;
     }
