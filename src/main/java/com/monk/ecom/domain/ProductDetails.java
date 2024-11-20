@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 public class ProductDetails {
 
-    private float price;
+    private float threshold;
     private float discount;
     private long productId;
     private List<Product> buyProducts;

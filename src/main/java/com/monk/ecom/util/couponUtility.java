@@ -9,6 +9,10 @@ import com.monk.ecom.domain.Product;
 import com.monk.ecom.domain.ProductDetails;
 import com.monk.ecom.repository.ProductRepository;
 
+import com.monk.ecom.domain.ProductDetails;
+
+import com.monk.ecom.repository.ProductRepository;
+
 @Component
 public class couponUtility {
 
@@ -19,10 +23,10 @@ public class couponUtility {
         StringBuilder description = new StringBuilder();
         description.append(details.getDiscount());
         description.append(": ");
-        float discountPercent = (details.getDiscount() * 100) / details.getPrice();
+        float discountPercent = (details.getDiscount() * 100) / details.getThreshold();
         description.append(discountPercent);
         description.append("% of ");
-        description.append(details.getPrice());
+        description.append(details.getThreshold());
         return description.toString();
     }
 

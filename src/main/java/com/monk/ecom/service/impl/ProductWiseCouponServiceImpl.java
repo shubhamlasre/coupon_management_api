@@ -5,8 +5,12 @@ import org.springframework.stereotype.Service;
 
 import com.monk.ecom.domain.Coupon;
 import com.monk.ecom.domain.CreationCriteria;
+import com.monk.ecom.domain.Product;
+import com.monk.ecom.domain.ProductCouponMap;
 import com.monk.ecom.domain.ProductDetails;
 import com.monk.ecom.repository.CouponRepository;
+import com.monk.ecom.repository.ProductCouponMapRepository;
+import com.monk.ecom.repository.ProductRepository;
 import com.monk.ecom.service.CouponService;
 import com.monk.ecom.util.couponUtility;
 
@@ -17,6 +21,12 @@ public class ProductWiseCouponServiceImpl implements CouponService {
     private CouponRepository couponRepo;
 
     @Autowired
+    private ProductRepository productRepo;
+
+    @Autowired
+    private ProductCouponMapRepository productCouponMapRepo;
+
+    @Autowired
     private couponUtility utility;
 
     @Override
@@ -24,12 +34,12 @@ public class ProductWiseCouponServiceImpl implements CouponService {
         ProductDetails couponDetails = couponCreationCriteria.getDetails();
         float discount = couponDetails.getDiscount();
         String description = utility.getProductWiseDiscountDescription(couponDetails);
-        Coupon couponResult = new Coupon(couponCreationCriteria.getTypeOfCoupon(), discount, description,
-                null,
-                null,
-                null,
-                null);
-        couponRepo.save(couponResult);
+        Coupon couponResult = new Coupon(couponCreationCriteria.getTypeOfCoupon(), discount, description);
+        Coupon savedCoupon = couponRepo.save(couponResult);
+        Product product = productRepo.findById(couponDetails.getProductId()).get();
+        ProductCouponMap productCouponMap = new ProductCouponMap(savedCoupon.getId(), couponDetails.getProductId(),
+                product.getPrice(), discount, product.getPrice() - discount);
+        productCouponMapRepo.save(productCouponMap);
         return couponResult;
     }
 

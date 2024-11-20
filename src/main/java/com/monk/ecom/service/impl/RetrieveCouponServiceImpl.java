@@ -22,8 +22,9 @@ public class RetrieveCouponServiceImpl implements RetrieveCouponService {
     }
 
     @Override
-    public List<Coupon> fetchCoupon(long id) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public Coupon fetchCoupon(long id) {
+        Coupon coupons = repository.findById(id).get();
+        return coupons;
     }
 
 }

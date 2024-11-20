@@ -7,6 +7,6 @@ public interface RetrieveCouponService {
 
     public List<Coupon> fetchAllCoupon();
 
-    public List<Coupon> fetchCoupon(long id);
+    public Coupon fetchCoupon(long id);
 
 }

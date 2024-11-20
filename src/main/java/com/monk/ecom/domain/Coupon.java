@@ -34,27 +34,10 @@ public class Coupon {
     @Column(name = "applicable_till")
     private LocalDate applicableTill;
 
-    @Column(name = "buy_product_ids")
-    private String buyProductIds;
-
-    @Column(name = "buy_product_quantities")
-    private String buyProductQuantities;
-
-    @Column(name = "get_product_ids")
-    private String getProductIds;
-
-    @Column(name = "get_product_quantities")
-    private String getProductQuantities;
-
-    public Coupon(String type, float discount, String description, String buyProductIds,
-            String buyProductQuantities, String getProductIds, String getProductQuantities) {
+    public Coupon(String type, float discount, String description) {
         this.type = type;
         this.discount = discount;
         this.description = description;
-        this.buyProductIds = buyProductIds;
-        this.buyProductQuantities = buyProductQuantities;
-        this.getProductIds = getProductIds;
-        this.getProductQuantities = getProductQuantities;
         LocalDate currentDate = LocalDate.now();
         this.applicableTill = currentDate.plusYears(1);
     }
