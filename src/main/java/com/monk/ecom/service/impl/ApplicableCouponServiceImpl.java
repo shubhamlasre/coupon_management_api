@@ -19,7 +19,6 @@ import com.monk.ecom.repository.BuyAndGetCouponRepository;
 import com.monk.ecom.repository.CouponForCartRepository;
 import com.monk.ecom.repository.CouponRepository;
 import com.monk.ecom.repository.ProductCouponMapRepository;
-import com.monk.ecom.repository.ProductRepository;
 import com.monk.ecom.service.ApplicableCouponService;
 
 import lombok.extern.log4j.Log4j2;
@@ -30,9 +29,6 @@ public class ApplicableCouponServiceImpl implements ApplicableCouponService {
 
     @Autowired
     private CouponRepository couponRepo;
-
-    @Autowired
-    private ProductRepository productRepo;
 
     @Autowired
     private CouponForCartRepository couponForCartRepo;

@@ -36,4 +36,6 @@ public interface BuyAndGetCouponRepository extends JpaRepository<BuyAndGetCoupon
      * Query to fetch by productId and quantity less than equal to input
      */
     public List<BuyAndGetCouponMap> findByBuyProductIdAndBuyProductQuantityLessThanEqual(long buyProductId, int buyProductQuantity);
+
+    public List<BuyAndGetCouponMap> findByCouponId(long couponId);
 }
