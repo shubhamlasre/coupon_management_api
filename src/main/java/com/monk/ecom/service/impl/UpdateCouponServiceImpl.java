@@ -77,10 +77,17 @@ public class UpdateCouponServiceImpl implements UpdateCouponService {
 
     @Override
     public void deleteCoupon(long id) {
-        Optional<Coupon> coupon = repository.findById(id);
-        if (coupon.isPresent()) {
+        Optional<Coupon> OptionalCoupon = repository.findById(id);
+        if (OptionalCoupon.isPresent()) {
+            Coupon coupon = OptionalCoupon.get();
+            if (coupon.getType().equalsIgnoreCase("cart-wise")) {
+                couponForCartRepo.deleteById(id);
+            } else if (coupon.getType().equalsIgnoreCase("product-wise")) {
+                productCouponMapRepo.deleteById(id);
+            } else if (coupon.getType().equalsIgnoreCase("BxGy")) {
+                buyAndGetCouponRepo.deleteByCouponId(id);
+            }
             repository.deleteById(id);
-            couponForCartRepo.deleteById(id);
         } else {
             // coupon not present error;
         }

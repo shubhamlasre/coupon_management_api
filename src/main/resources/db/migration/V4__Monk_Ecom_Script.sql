@@ -7,7 +7,7 @@ CREATE TABLE Product_Coupon_Map (
 );
 
 CREATE TABLE Buy_And_Get_Coupon_Map (
-    buy_and_get_id BIGINT PRIMARY KEY,
+    buy_and_get_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     coupon_Id BIGINT,
     buy_Product_Id BIGINT NOT NULL,
     buy_Product_Quantity INT NOT NULL,
