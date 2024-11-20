@@ -1,7 +1,9 @@
 package com.monk.ecom.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +48,8 @@ public class ApplicableCouponServiceImpl implements ApplicableCouponService {
         List<Coupon> applicableCoupons = new ArrayList<>();
         List<Product> cartItems = cartDetails.getCart().getItems();
         List<Long> uniqueCouponIds = new ArrayList<>();
+        Map<Long, Integer> bngItemDetail = new HashMap<>();
+        Map<Long, String> bngCouponDetail = new HashMap<>();
         float cartValue = 0;
         for (Product product : cartItems) {
             // fetching product-wise coupon
@@ -63,17 +67,20 @@ public class ApplicableCouponServiceImpl implements ApplicableCouponService {
             // fetching buy and get coupon
             List<BuyAndGetCouponMap> buyAndGetCouponMaps = buyAndGetCouponRepo.findByBuyProductIdAndBuyProductQuantityLessThanEqual(
                     product.getProductId(), product.getQuantity());
-            log.info(buyAndGetCouponMaps.toString());
             for (BuyAndGetCouponMap bngCouponMap : buyAndGetCouponMaps) {
                 if (!uniqueCouponIds.contains(bngCouponMap.getCouponId())) {
-                    Optional<Coupon> coupon = couponRepo.findById(bngCouponMap.getCouponId());
-                    if (coupon.isPresent()) {
-                        applicableCoupons.add(coupon.get());
-                        uniqueCouponIds.add(coupon.get().getId());
+                    Optional<Coupon> optCoupon = couponRepo.findById(bngCouponMap.getCouponId());
+                    if (optCoupon.isPresent()) {
+                        Coupon coupon = optCoupon.get();
+                        applicableCoupons.add(coupon);
+                        uniqueCouponIds.add(coupon.getId());
+                        String avialItemDetail = "" + bngCouponMap.getAvailProductId() + ":" + bngCouponMap.getAvailProductQuantity();
+                        bngCouponDetail.put(coupon.getId(), avialItemDetail);
                     }
                 }
             }
             cartValue += product.getPrice();
+            bngItemDetail.put(product.getProductId(), product.getQuantity());
         }
         // cartwise coupon
         List<CouponForCart> couponForCarts = couponForCartRepo.findByThresholdLessThanEqual(cartValue);
@@ -84,6 +91,22 @@ public class ApplicableCouponServiceImpl implements ApplicableCouponService {
                 uniqueCouponIds.add(optCoupon.get().getId());
             }
 
+        }
+        // removing Buy and Get coupon if cart doesn't contain the Freely avialable item
+        for (long couponId : bngCouponDetail.keySet()) {
+            String itemDetail = bngCouponDetail.get(couponId);
+            String[] freeItem = itemDetail.split(":");
+            long freeProductId = Long.parseLong(freeItem[0]);
+            int freeProductQuantity = Integer.parseInt(freeItem[1]);
+            if (bngItemDetail.containsKey(freeProductId)) {
+                if (bngItemDetail.get(freeProductId) < freeProductQuantity) {
+                    Optional<Coupon> optCoupon = couponRepo.findById(couponId);
+                    applicableCoupons.remove(optCoupon.get());
+                }
+            } else {
+                Optional<Coupon> optCoupon = couponRepo.findById(couponId);
+                applicableCoupons.remove(optCoupon.get());
+            }
         }
         return applicableCoupons;
     }
