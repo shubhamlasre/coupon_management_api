@@ -78,6 +78,8 @@ public class UpdateCouponServiceImpl implements UpdateCouponService {
             } else {
                 throw new CouponNotFoundException("Coupon with couponId: " + id + " does not exist");
             }
+        } else {
+            throw new CouponNotFoundException("Coupon with couponId: " + id + " does not exist");
         }
     }
 
