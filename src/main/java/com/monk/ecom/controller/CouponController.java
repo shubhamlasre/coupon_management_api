@@ -68,7 +68,7 @@ public class CouponController {
     }
 
     @GetMapping("/coupon/{id}")
-    public Coupon fetchCoupon(@PathVariable int id) throws CouponNotFoundException, ConditionNotMetException {
+    public Coupon fetchCoupon(@PathVariable long id) throws CouponNotFoundException, ConditionNotMetException {
         Coupon coupon = retrieveCouponService.fetchCoupon(id);
         return coupon;
     }
