@@ -72,10 +72,12 @@ public class ApplicableCouponServiceImpl implements ApplicableCouponService {
                         Coupon coupon = optCoupon.get();
                         applicableCoupons.add(coupon);
                         uniqueCouponIds.add(coupon.getId());
+                        String avilableString = "" + bngCouponMap.getAvailProductId() + ":" + bngCouponMap.getAvailProductQuantity();
+                        bngCouponDetail.put(coupon.getId(), avilableString);
                     }
                 }
             }
-            cartValue += product.getPrice();
+            cartValue += product.getPrice() * product.getQuantity();
             bngItemDetail.put(product.getProductId(), product.getQuantity());
         }
         // cartwise coupon

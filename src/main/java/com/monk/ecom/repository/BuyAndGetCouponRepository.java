@@ -38,4 +38,10 @@ public interface BuyAndGetCouponRepository extends JpaRepository<BuyAndGetCoupon
     public List<BuyAndGetCouponMap> findByBuyProductIdAndBuyProductQuantityLessThanEqual(long buyProductId, int buyProductQuantity);
 
     public List<BuyAndGetCouponMap> findByCouponId(long couponId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE BuyAndGetCouponMap b SET b.repetitionLimit = :repetitionLimit WHERE b.couponId = :couponId")
+    public int updateRepetionLimitByCouponId(@Param("couponId") long couponId,
+            @Param("repetitionLimit") int repetitionLimit);
 }

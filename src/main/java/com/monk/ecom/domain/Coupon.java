@@ -38,7 +38,10 @@ public class Coupon {
         this.type = type;
         this.discount = discount;
         this.description = description;
-        LocalDate currentDate = LocalDate.now();
-        this.applicableTill = currentDate.plusYears(1);
     }
+
+    public void setApplicableTill(LocalDate applicableTill) {
+        this.applicableTill = applicableTill;
+    }
+
 }

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.monk.ecom.domain.Coupon;
 import com.monk.ecom.domain.CreationCriteria;
-import com.monk.ecom.domain.result.CouponSearchResult;
 import com.monk.ecom.exception.ConditionNotMetException;
 import com.monk.ecom.exception.CouponNotFoundException;
 import com.monk.ecom.exception.InvalidInputException;
@@ -60,13 +59,12 @@ public class CouponController {
 
     // @RequestMapping(value = "/coupon", method = RequestMethod.GET)
     @GetMapping("/coupon")
-    public CouponSearchResult fetchCoupon() throws CouponNotFoundException, ConditionNotMetException {
+    public List<Coupon> fetchCoupon() throws CouponNotFoundException, ConditionNotMetException {
         List<Coupon> coupons = retrieveCouponService.fetchAllCoupon();
         if (coupons.isEmpty()) {
             throw new CouponNotFoundException("No Coupons Exist");
         }
-        CouponSearchResult result = new CouponSearchResult(coupons);
-        return result;
+        return coupons;
     }
 
     @GetMapping("/coupon/{id}")

@@ -35,6 +35,7 @@ public class ProductWiseCouponServiceImpl implements CouponService {
         float discount = couponDetails.getDiscount();
         String description = utility.getProductWiseDiscountDescription(couponDetails);
         Coupon couponResult = new Coupon(couponCreationCriteria.getTypeOfCoupon(), discount, description);
+        couponResult.setApplicableTill(utility.getExpiryDate());
         Coupon savedCoupon = couponRepo.save(couponResult);
         Product product = productRepo.findById(couponDetails.getProductId()).get();
         ProductCouponMap productCouponMap = new ProductCouponMap(savedCoupon.getId(), couponDetails.getProductId(),

@@ -28,14 +28,17 @@ public class BuyAndGetCouponMap {
 
     private float discount;
 
+    private int repetitionLimit;
+
     public BuyAndGetCouponMap(long couponId, long buyProductId, int buyProductQuantity, long availProductId,
-            int availProductQuantity, float discount) {
+            int availProductQuantity, float discount, int repetitionLimit) {
         this.availProductId = availProductId;
         this.availProductQuantity = availProductQuantity;
         this.buyProductId = buyProductId;
         this.buyProductQuantity = buyProductQuantity;
         this.couponId = couponId;
         this.discount = discount;
+        this.repetitionLimit = repetitionLimit;
     }
 
 }

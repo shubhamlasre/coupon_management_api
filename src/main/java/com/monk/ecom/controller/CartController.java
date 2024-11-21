@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.monk.ecom.domain.CartDetails;
 import com.monk.ecom.domain.Coupon;
 import com.monk.ecom.domain.result.CartResult;
+import com.monk.ecom.domain.result.CouponSearchResult;
 import com.monk.ecom.exception.ConditionNotMetException;
 import com.monk.ecom.exception.CouponNotFoundException;
 import com.monk.ecom.service.ApplicableCouponService;
@@ -26,10 +27,11 @@ public class CartController {
     private ApplyCouponServiceImpl applyCouponServiceImpl;
 
     @PostMapping("/applicable-coupons")
-    public List<Coupon> fetchApplicableCoupons(@RequestBody CartDetails cart) throws CouponNotFoundException {
+    public CouponSearchResult fetchApplicableCoupons(@RequestBody CartDetails cart) throws CouponNotFoundException {
 
         List<Coupon> applicableCoupon = applicableCouponService.fetchApplicableCoupon(cart);
-        return applicableCoupon;
+        CouponSearchResult applicableCouponResult = new CouponSearchResult(applicableCoupon);
+        return applicableCouponResult;
     }
 
     @PostMapping("/apply-coupons/{id}")

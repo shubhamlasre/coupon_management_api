@@ -70,7 +70,7 @@ public class UpdateCouponServiceImpl implements UpdateCouponService {
                         Product product = productRepo.findById(getProd.getProductId()).get();
                         float discount = product.getPrice() * getProd.getQuantity();
                         BuyAndGetCouponMap bngCouponMap = new BuyAndGetCouponMap(id, buyProd.getProductId(),
-                                buyProd.getQuantity(), getProd.getProductId(), getProd.getQuantity(), discount);
+                                buyProd.getQuantity(), getProd.getProductId(), getProd.getQuantity(), discount, details.getRepetitionLimit());
                         entiityUpdateList.add(bngCouponMap);
                     }
                 }

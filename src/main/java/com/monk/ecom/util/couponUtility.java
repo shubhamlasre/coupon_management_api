@@ -1,6 +1,6 @@
 package com.monk.ecom.util;
 
-import java.util.List;
+import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -62,39 +62,9 @@ public class couponUtility {
         return buyDescription + getDescription;
     }
 
-    public String fetchBuyProductId(List<Product> products) {
-        StringBuilder productIds = new StringBuilder();
-        for (Product prod : products) {
-            productIds.append(prod.getPrice());
-            productIds.append(",");
-        }
-        return productIds.substring(0, productIds.length() - 1);
+    public LocalDate getExpiryDate() {
+        LocalDate currentDate = LocalDate.now();
+        return currentDate.plusYears(1);
     }
 
-    public String fetchBuyProductQuantity(List<Product> products) {
-        StringBuilder productIds = new StringBuilder();
-        for (Product prod : products) {
-            productIds.append(prod.getQuantity());
-            productIds.append(",");
-        }
-        return productIds.substring(0, productIds.length() - 1);
-    }
-
-    public String fetchGetProductId(List<Product> products) {
-        StringBuilder productIds = new StringBuilder();
-        for (Product prod : products) {
-            productIds.append(prod.getPrice());
-            productIds.append(",");
-        }
-        return productIds.substring(0, productIds.length() - 1);
-    }
-
-    public String fetchGetProductQuantity(List<Product> products) {
-        StringBuilder productIds = new StringBuilder();
-        for (Product prod : products) {
-            productIds.append(prod.getQuantity());
-            productIds.append(",");
-        }
-        return productIds.substring(0, productIds.length() - 1);
-    }
 }

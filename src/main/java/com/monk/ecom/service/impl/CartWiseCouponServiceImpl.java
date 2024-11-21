@@ -30,6 +30,7 @@ public class CartWiseCouponServiceImpl implements CouponService {
         float discount = couponDetails.getDiscount();
         String description = utility.getCartWiseDiscountDescription(couponDetails);
         Coupon couponResult = new Coupon(couponCreationCriteria.getTypeOfCoupon(), discount, description);
+        couponResult.setApplicableTill(utility.getExpiryDate());
         Coupon savedCoupon = couponRepo.save(couponResult);
         CouponForCart couponForCart = new CouponForCart(savedCoupon.getId(), couponDetails.getThreshold(), discount,
                 description);

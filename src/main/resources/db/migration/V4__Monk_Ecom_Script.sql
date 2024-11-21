@@ -13,5 +13,6 @@ CREATE TABLE Buy_And_Get_Coupon_Map (
     buy_Product_Quantity INT NOT NULL,
     avail_Product_Id BIGINT NOT NULL,
     avail_Product_Quantity INT NOT NULL,
-    discount NUMERIC(5, 2) NOT NULL
+    discount NUMERIC(5, 2) NOT NULL,
+    repetition_limit INT NOT NULL
 );

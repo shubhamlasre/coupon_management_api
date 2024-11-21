@@ -143,25 +143,29 @@ public class ApplyCouponServiceImpl implements ApplyCouponService {
         float finalPrice = 0;
         List<BuyAndGetCouponMap> buyAndGetCouponMapList = buyAndGetCouponRepo.findByCouponId(couponId);
         BuyAndGetCouponMap buyAndGetCouponMap = buyAndGetCouponMapList.get(0);
-        long freeProductId = buyAndGetCouponMap.getAvailProductId();
-        Product freeProduct = productRepo.findById(freeProductId).get();
-        finalDiscount = freeProduct.getPrice() * buyAndGetCouponMap.getAvailProductQuantity();
-        List<Product> items = cartDetails.getCart().getItems();
-        for (Product cartProduct : items) {
-            float totalDiscount = 0;
-            if (freeProduct.getProductId() == cartProduct.getProductId()) {
-                totalDiscount = finalDiscount;
+        if (buyAndGetCouponMap.getRepetitionLimit() > 0) {
+            long freeProductId = buyAndGetCouponMap.getAvailProductId();
+            List<Product> items = cartDetails.getCart().getItems();
+            for (Product cartProduct : items) {
+                float totalDiscount = 0;
+                if (freeProductId == cartProduct.getProductId()) {
+                    finalDiscount = cartProduct.getPrice() * buyAndGetCouponMap.getAvailProductQuantity();
+                    totalDiscount = finalDiscount;
+                }
+                Product product = new Product(cartProduct.getProductId(), cartProduct.getPrice(), cartProduct.getQuantity(), totalDiscount);
+                itemResult.add(product);
+                totalPrice += product.getPrice() * cartProduct.getQuantity();
             }
-            Product product = new Product(cartProduct.getProductId(), cartProduct.getPrice(), cartProduct.getQuantity(), totalDiscount);
-            itemResult.add(product);
-            totalPrice += product.getPrice() * cartProduct.getQuantity();
+            finalCart.setItems(itemResult);
+            finalCart.setTotalPrice(totalPrice);
+            finalCart.setTotalDiscount(finalDiscount);
+            finalPrice = totalPrice - finalDiscount;
+            finalCart.setFinalPrice(finalPrice);
+            cartResult.setUpdatedCart(finalCart);
+            buyAndGetCouponRepo.updateRepetionLimitByCouponId(couponId, buyAndGetCouponMap.getRepetitionLimit() - 1);
+        } else {
+            throw new ConditionNotMetException("Exceeded coupon's applicable limit");
         }
-        finalCart.setItems(itemResult);
-        finalCart.setTotalPrice(totalPrice);
-        finalCart.setTotalDiscount(finalDiscount);
-        finalPrice = totalPrice - finalDiscount;
-        finalCart.setFinalPrice(finalPrice);
-        cartResult.setUpdatedCart(finalCart);
 
         return cartResult;
     }

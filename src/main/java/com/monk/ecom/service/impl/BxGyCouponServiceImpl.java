@@ -35,13 +35,14 @@ public class BxGyCouponServiceImpl implements CouponService {
         float discount = couponDetails.getDiscount();
         String description = utility.getBxGyDiscountDescription(couponDetails);
         Coupon couponResult = new Coupon(couponCreationCriteria.getTypeOfCoupon(), discount, description);
+        couponResult.setApplicableTill(utility.getExpiryDate());
         Coupon coupon = couponRepo.save(couponResult);
         for (Product buyProd : couponDetails.getBuyProducts()) {
             for (Product getProd : couponDetails.getGetProducts()) {
                 Product product = productRepo.findById(getProd.getProductId()).get();
                 float finalDiscount = product.getPrice() * getProd.getQuantity();
                 BuyAndGetCouponMap bngCouponMap = new BuyAndGetCouponMap(coupon.getId(), buyProd.getProductId(),
-                        buyProd.getQuantity(), getProd.getProductId(), getProd.getQuantity(), finalDiscount);
+                        buyProd.getQuantity(), getProd.getProductId(), getProd.getQuantity(), finalDiscount, couponDetails.getRepetitionLimit());
                 buyAndGetCouponRepo.save(bngCouponMap);
             }
         }
